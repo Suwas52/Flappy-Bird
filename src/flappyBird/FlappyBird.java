@@ -4,14 +4,11 @@ import org.w3c.dom.css.Rect;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class FlappyBird implements ActionListener, MouseListener {
+public class FlappyBird implements ActionListener, MouseListener, KeyListener {
 
     public static FlappyBird flappyBird;
 
@@ -43,21 +40,22 @@ public class FlappyBird implements ActionListener, MouseListener {
 
         jFrame.add(renderer);
         jFrame.addMouseListener(this);
+        jFrame.addKeyListener(this);
         jFrame.setDefaultCloseOperation(jFrame.EXIT_ON_CLOSE);
         jFrame.setResizable(false);
         jFrame.setSize(WIDTH,HEIGHT);
         jFrame.setVisible(true);
 
+
+
+        AddColumn(true);
+        AddColumn(true);
+        AddColumn(true);
+        AddColumn(true);
+        AddColumn(true);
+        AddColumn(true);
+
         timer.start();
-
-        AddColumn(true);
-        AddColumn(true);
-        AddColumn(true);
-        AddColumn(true);
-        AddColumn(true);
-        AddColumn(true);
-
-
 
 
 
@@ -78,7 +76,6 @@ public class FlappyBird implements ActionListener, MouseListener {
 
             if(ticks % 2 ==0 && yMotion <20){
                 yMotion +=2;
-
             }
 
             for(int i = 0; i < columns.size();i++){
@@ -95,9 +92,21 @@ public class FlappyBird implements ActionListener, MouseListener {
             bird.y += yMotion;
 
             for(Rectangle column: columns){
+                if(column.y == 0 && bird.x + bird.width /2 >column.x + column.width /2-10 && bird.x + bird.width /2 < column.x + column.width /2+10){
+                    score++;
+                }
                 if(column.intersects(bird)){
                     gameOver = true;
-                    bird.x = column.x - bird.width;
+                    if(bird.x <= column.x){
+                        bird.x = column.x - bird.width;
+                    }
+                    else {
+                        if(column.y != 0){
+                            bird.y = column.y -bird.height;
+                        }else if(bird.y < column.height){
+                            bird.y = column.height;
+                        }
+                    }
                 }
 
             }
@@ -126,7 +135,7 @@ public class FlappyBird implements ActionListener, MouseListener {
         }
         else {
             columns.add(new Rectangle(columns.get(columns.size()-1).x +600,HEIGHT - height-120,width,height));
-            columns.add(new Rectangle(columns.get(columns.size()+1).x,0,width,HEIGHT-height-space));
+            columns.add(new Rectangle(columns.get(columns.size()- 1).x,0,width,HEIGHT-height-space));
         }
 
     }
@@ -156,7 +165,6 @@ public class FlappyBird implements ActionListener, MouseListener {
         }
         else if (!gameOver){
             if (yMotion > 0) {
-
                 yMotion = 0;
             }
             yMotion -= 10;
@@ -186,6 +194,9 @@ public class FlappyBird implements ActionListener, MouseListener {
         }
         if(gameOver){
             g.drawString("Game Over!",300,HEIGHT/2-100);
+        }
+        if(!gameOver && started){
+            g.drawString(String.valueOf(score), WIDTH/2-25, 100);
         }
     }
 
@@ -220,6 +231,23 @@ public class FlappyBird implements ActionListener, MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_SPACE){
+            jump();
+        }
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
 
     }
 }
